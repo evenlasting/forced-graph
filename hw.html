@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+<script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/BE71BD0B-60B6-E440-A927-39AD9ABCC3DD/main.js" charset="UTF-8"></script></head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="500px" width="750px" id="main">
+    </svg>
+
+    <script>
+
+        var line = new Array();
+        line[0] = new Array(1, 2, 3, 5, 6);
+        line[1] = new Array();
+        line[1][0] = 0;
+        line[2] = new Array();
+        line[2][0] = 0;
+        line[3] = new Array(0, 8);
+        line[4] = new Array(5, 6);
+        line[5] = new Array(0, 4);
+        line[6] = new Array(0, 4, 9);
+        line[7] = new Array();
+        line[7][0] = 9;
+        line[8] = new Array(9, 3);
+        line[9] = new Array(6, 8, 7);
+
+
+        function createpoint(id,x, y) {
+            var point = new Object;
+            point.id = "cir"+id;
+            point.cx = x;
+            point.cy = y;
+            point.group = group[id];
+            point.create = function () {
+                var main = document.getElementById("main");
+                var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", this.cx);
+                circle.setAttribute("cy", this.cy);
+                circle.setAttribute("r", (value[id]+5)/2);
+                circle.setAttribute("fill", this.group);
+                circle.setAttribute("id", this.id);
+                main.appendChild(circle);
+            };
+            point.create();
+            point.createline = function () {
+                var main = document.getElementById("main");
+                
+                for (var ii = 0; ii < line[id].length; ii++) {
+                    var addline = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    var xx = pointArr[line[id][ii]].cx;
+                    var yy = pointArr[line[id][ii]].cy;
+                    addline.setAttribute("id", "line" + id + line[id][ii]);
+                    addline.setAttribute("x1", this.cx);
+                    addline.setAttribute("y1", this.cy );
+                    addline.setAttribute("x2",  xx );
+                    addline.setAttribute("y2",  yy );
+                    addline.setAttribute("style", "stroke:rgb(0, 0, 0);stroke-width:1");
+                    main.appendChild(addline);  //是移动而不是复制
+                }
+            }
+            point.force = function () {     //力的方向，直接用位置方向的符号判断。   未处理x相同的特判。
+              //  console.log("cx:" + this.cx);
+                var fx = 0, fy = 0;
+                for (var i = 0; i < pointArr.length; i++) {
+                    if (i == id) continue;
+                    var temp = (this.cy - pointArr[i].cy) / (this.cx - pointArr[i].cx);
+
+
+                    var test = Math.cos(Math.atan(temp));//测试
+
+
+                    var tempforce = value[id] * value[i] / (Math.pow(this.cx - pointArr[i].cx, 2) + Math.pow(this.cy - pointArr[i].cy, 2)) * test;
+                    tempforce *= 10;
+                    
+                    fx += (this.cx > pointArr[i].cx) ? Math.abs(tempforce) : -Math.abs(tempforce);
+                    fy += (this.cy > pointArr[i].cy) ? Math.abs(tempforce*temp) : -Math.abs(tempforce*temp);
+                   // console.log("klx:"+fx);
+                  //  console.log("kly:"+fy);
+                }
+                for (var i = 0; i < line[id].length; i++) {
+                    var temp = (this.cy - pointArr[line[id][i]].cy) / (this.cx - pointArr[line[id][i]].cx);
+                    var test = Math.cos(Math.atan(temp));
+                    var tempforce = test * Math.sqrt(Math.pow(this.cx - pointArr[line[id][i]].cx, 2) + Math.pow(this.cy - pointArr[line[id][i]].cy, 2));
+                    tempforce /= 1000;
+
+
+
+
+                    fx -= (this.cx > pointArr[line[id][i]].cx) ? Math.abs(tempforce) : -Math.abs(tempforce);
+                    fy -= (this.cy > pointArr[line[id][i]].cy) ? Math.abs(tempforce * temp) : -Math.abs(tempforce * temp);
+                  //  console.log("forcex:"+fx);
+                 //   console.log("forcey:"+fy);
+                }
+                
+                var thispoint = document.getElementById(this.id);
+                this.cx += fx;
+                this.cy += fy;
+               // console.log(this.cx, pointArr[id].cx, parseFloat(thispoint.getAttribute("cx")) + fx);
+               // console.log("cx:" + this.cx);
+               // console.log("realcx:" + parseInt(thispoint.getAttribute("cx")));
+
+                thispoint.setAttribute("cx", parseFloat(thispoint.getAttribute("cx")) + fx);
+                thispoint.setAttribute("cy", parseFloat(thispoint.getAttribute("cy")) + fy);
+
+
+                };
+            return point;
+        }
+
+        var num = 10;
+        var group = new Array("red", "red", "red", "red", "green", "green", "green", "blue", "blue", "blue");//data by group
+        var value = new Array(4, 5, 6, 9, 3, 1, 5, 7, 9, 1);
+        var pointArr = new Array();
+        //创建点
+        pointArr[0] = createpoint(0, 150, 88);
+        pointArr[1] = createpoint(1, 149, 500);
+        pointArr[2] = createpoint(2, 553, 88);
+        pointArr[3] = createpoint(3, 154, 88);
+        pointArr[4] = createpoint(4, 555, 88);
+        pointArr[5] = createpoint(5, 556, 88);
+        pointArr[6] = createpoint(6, 557, 88);
+        pointArr[7] = createpoint(7, 558, 88);
+        pointArr[8] = createpoint(8, 155, 88);
+        pointArr[9] = createpoint(9, 159, 88);
+     //   pointArr[0].create();
+     //   pointArr[1].create();
+
+
+    </script>
+
+
+
+    <script>
+        var state = 0;
+        function myFunction() {
+      
+                var ss = document.getElementsByTagName("line");
+                var main = document.getElementById("main");
+                //console.log(ss);
+
+                for (var i = ss.length - 1; i >= 0; i--) {
+                    main.removeChild(ss[i]);
+                }
+                for (var i = 0; i < pointArr.length; i++) {
+                    pointArr[i].force();
+                }
+
+                for (var i = 0; i < pointArr.length; i++) {
+                    pointArr[i].createline();
+                
+            }
+            setTimeout('myFunction()', 15);
+        }
+        function auto() {
+            setTimeout('myFunction()', 15);             //这样的伪模拟会导致图形缓慢向一个方向移动。
+        }
+        auto();
+    </script>
+
+    <script>
+        function begin() {
+            var circleArr = document.getElementsByTagName("circle");
+            
+            for (var i = 0; i < circleArr.length; i++) {
+                circleArr[i].onmousedown = grab;
+            }
+            var main = document.getElementById("main");
+            main.onmousemove = drag;
+            main.onmouseup = drop;
+        }
+        var grabtarget = null;
+        var circlex = null;
+        var circley = null;//光标会在圆的左上方，导致只能向右下移动
+        function grab(evt) {
+            var target = evt.target;
+            grabtarget = target;
+            target.setAttributeNS(null, "pointer-evernts", "none");
+
+        }
+        function drag(evt) {
+            var target = evt.target;
+            if (grabtarget == null) return;
+          //  if (grabtarget != target) return;
+            var name = parseInt(grabtarget.id.substring(3));
+            grabtarget.setAttribute("cx", evt.clientX-(value[name] + 5) / 2);
+            grabtarget.setAttribute("cy", evt.clientY - (value[name] + 5) / 2);
+
+            pointArr[name].cx = evt.clientX - (value[name] + 5) / 2;
+            pointArr[name].cy = evt.clientY - (value[name] + 5) / 2;
+        }
+
+        
+        function drop(evt) {
+            if (grabtarget == null) return;
+            var target = evt.target;
+            grabtarget.setAttributeNS(null, "pointer-events", "all");
+            grabtarget = null;
+        }
+
+       /* var mousestate=0;
+        function fdown(event) {
+            mousestate = (mousestate) ? 0 : 1;
+            var circleArr = document.getElementsByTagName("circle");
+            console.log(this);
+            var thiscircle = this; 
+            var name = parseInt(this.id.substring(3));
+            
+
+           if (!mousestate) { document.onmousemove = null; } else
+            document.onmousemove = function (event) {
+              //  if (event.button == 0) return;
+                //  if (!state) return;
+               // if (event.buttons == 0) return;
+                thiscircle.setAttribute("cx", event.clientX);
+                thiscircle.setAttribute("cy", event.clientY);
+                console.log(mousestate);
+            }
+
+        }*/
+    </script>
+
+    <button onclick="begin()">开始拖动</button>  
+</body>
+</html>
